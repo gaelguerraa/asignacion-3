@@ -1,0 +1,17 @@
+:host {
+  display: inline-block;
+}
+
+span {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .02em;
+  color: #fff;
+}
+
+.disponible   { background: var(--color-verde, #2e9e5b); }
+.pocas-piezas { background: #e6a100; }
+.agotado      { background: var(--color-rojo, #ff4757); }

@@ -61,3 +61,7 @@ h3 {
 boton-app {
   margin-top: auto;
 }
+
+insignia-estado {
+  align-self: flex-start;
+}

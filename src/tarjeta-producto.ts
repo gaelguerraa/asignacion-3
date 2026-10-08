@@ -1,5 +1,7 @@
 import './boton-app';
 import estilos from './tarjeta-producto.css?inline';
+import './boton-app';
+import './insignia-estado';
 import type { DetalleAgregar } from './tipos';
 
 const pesos = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' });
@@ -59,12 +61,14 @@ export class TarjetaProducto extends HTMLElement {
     const imagen = escapar(this.getAttribute('imagen') ?? '');
     const { precio, existencia } = this;
     const agotado = existencia <= 0;
+    const estado = agotado ? 'agotado' : existencia <= 5 ? 'pocas-piezas' : 'disponible';
 
     this.shadowRoot!.innerHTML = `
       <style>${estilos}</style>
       <article class="tarjeta">
         <img src="${imagen}" alt="${nombre}">
         <div class="cuerpo">
+          <insignia-estado estado="${estado}"></insignia-estado>
           <h3>${nombre}</h3>
           <p class="precio">${pesos.format(precio)}</p>
           <p class="existencia${agotado ? ' agotado' : ''}">${agotado ? 'Agotado' : `${existencia} disponibles`}</p>

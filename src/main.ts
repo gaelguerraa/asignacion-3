@@ -1,5 +1,7 @@
 import './boton-app';
 import './tarjeta-producto';
+import type { TablaGenerica } from './tabla-generica';
+import './tabla-generica';
 import type { Producto } from './tipos';
 
 const rejilla = document.querySelector<HTMLElement>('#rejilla')!;
@@ -32,17 +34,42 @@ for (const p of productos) {
 
 const cuenta = document.querySelector<HTMLElement>('#cuenta')!;
 const vaciar = document.querySelector<HTMLElement>('#vaciar')!;
-let enCarrito = 0;
+const tabla = document.querySelector<TablaGenerica>('#tabla-carrito')!;
+
+const pesos = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' });
+
+// El estado del carrito: id -> línea con cantidad.
+const carrito = new Map<string, { producto: string; precio: number; cantidad: number }>();
+
+// La tabla no sabe de productos: solo recibe columnas y filas.
+tabla.columnas = [
+  { clave: 'producto', titulo: 'Producto' },
+  { clave: 'precio', titulo: 'Precio' },
+  { clave: 'cantidad', titulo: 'Cantidad' },
+];
+
+function actualizarVista() {
+  let total = 0;
+  const filas = [];
+  for (const linea of carrito.values()) {
+    total += linea.cantidad;
+    filas.push({ producto: linea.producto, precio: pesos.format(linea.precio), cantidad: linea.cantidad });
+  }
+  cuenta.textContent = String(total);
+  tabla.filas = filas;
+}
+actualizarVista();
 
 // UN solo listener para las doce tarjetas: el evento sube hasta la rejilla.
 rejilla.addEventListener('agregar', (e) => {
-  enCarrito++;
-  cuenta.textContent = String(enCarrito);
-  console.log('Agregado:', e.detail.nombre, e.detail.precio);
+  const { id, nombre, precio } = e.detail;
+  const linea = carrito.get(id);
+  if (linea) linea.cantidad++;
+  else carrito.set(id, { producto: nombre, precio, cantidad: 1 });
+  actualizarVista();
 });
 
-// El mismo <boton-app> del encabezado, con otro uso.
 vaciar.addEventListener('click', () => {
-  enCarrito = 0;
-  cuenta.textContent = '0';
+  carrito.clear();
+  actualizarVista();
 });

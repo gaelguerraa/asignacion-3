@@ -1,48 +1,26 @@
-# Práctica 11 — Componentes con TypeScript puro
+## Práctica 12 — Tabla genérica e insignia de estado
 
-Web Components (`<boton-app>` y `<tarjeta-producto>`) con Vite + vanilla-ts, sin frameworks.
+### Parte A · `<tabla-generica>`
 
-## Cómo correrlo
+**¿Por qué se puede llamar «genérica»?**
+Porque el componente nunca menciona datos concretos como «precio» o «nombre». Solo recibe una lista
+de columnas (`clave` + `titulo`) y una lista de filas (objetos cualesquiera), pinta un `<th>` por
+columna y, por cada fila, un `<td>` con `fila[columna.clave]`. Qué significan los datos lo decide
+quien la usa.
 
-```bash
-npm install
-npm run dev
-```
+**¿Qué tendría que cambiar para mostrar alumnos en lugar de productos?**
+Nada dentro de la tabla. Solo cambian las dos propiedades que se le asignan desde afuera, por ejemplo
+`columnas = [{clave:'matricula', titulo:'Matrícula'}, {clave:'nombre', titulo:'Nombre'}]` y
+`filas = [{matricula:'123', nombre:'Ana'}, ...]`.
 
-> Copia la carpeta `img/` del código base dentro de `public/img/` (fotos `producto-01.jpg` … `producto-12.jpg`).
+Columnas y filas se reciben como **propiedades** (con `set`) y no como atributos, porque son arreglos
+y un atributo solo guarda texto. Cada vez que se asigna una, la tabla se vuelve a pintar. Si no hay
+filas muestra «Sin datos».
 
-## Ejercicio 1 — Botón reutilizable
+### Parte B · `<insignia-estado>`
 
-**Qué pasa al cambiar la variante en el HTML (sin tocar el TypeScript):**
-Al cambiar `variante="secundario"` por `primario` o `peligro` en `index.html`, el botón cambia de
-aspecto al instante (fondo azul, blanco con borde, o rojo). El TypeScript no se modificó porque el
-componente observa el atributo `variante` (`observedAttributes`) y `attributeChangedCallback`
-vuelve a aplicar la clase CSS correspondiente. El HTML es quien "configura" al componente.
+- **Recibe:** el atributo vigilado `estado` (`disponible`, `pocas-piezas` o `agotado`).
+- **Avisa:** nada hacia afuera; la insignia solo muestra (como permite el enunciado).
+- **Guarda adentro:** su `<span>`, el mapa de textos por estado y sus estilos (color de cada estado), todo dentro del árbol de sombra.
 
-**¿Por qué el nombre de una etiqueta propia debe llevar guion?**
-Porque el HTML ya tiene (y puede tener en el futuro) etiquetas con nombres de una sola palabra
-(`button`, `article`, `section`…). La especificación reserva todos los nombres sin guion para el
-estándar, de modo que una etiqueta propia con guion (`boton-app`) nunca va a chocar con una
-etiqueta oficial presente o futura. Además el navegador usa el guion para distinguir un
-elemento personalizado de uno desconocido, y `customElements.define` lanza error si falta.
-
-## Ejercicio 2 — Tarjeta de producto
-
-**Contrato de la tarjeta**
-- **Entradas:** atributos `producto-id`, `nombre`, `precio`, `imagen`, `existencia` (llegan como texto; `precio` y `existencia` se convierten con `Number()`).
-- **Salida:** evento propio `agregar` con `{ id, nombre, precio }`.
-- **Aislado:** su CSS vive en el Shadow DOM y no se mezcla con el de la página.
-
-**¿Qué pasa si el evento no puede salir del árbol de sombra?**
-Si el `CustomEvent` se crea sin `composed: true`, no cruza la frontera del Shadow DOM: se queda
-dentro de la sombra y el listener de la rejilla jamás se entera. El contador no se mueve y **no
-hay ningún error**, porque para el navegador todo funcionó: el evento sí se emitió, solo que
-nadie fuera de la sombra puede escucharlo. Se necesitan `bubbles: true` (que suba) **y**
-`composed: true` (que cruce la sombra).
-
-## Evidencias
-
-Capturas en `evidencias/`:
-- Botón en sus variantes (primario, secundario, peligro y deshabilitado)
-- Catálogo con las tarjetas agotadas
-- Contador después de agregar
+Se usa dentro de cada `<tarjeta-producto>`: agotado si la existencia es 0, pocas piezas si es 5 o menos, disponible en otro caso.
